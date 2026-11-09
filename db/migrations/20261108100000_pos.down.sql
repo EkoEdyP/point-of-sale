@@ -1,0 +1,20 @@
+-- Menghapus seluruh skema POS beserta semua datanya.
+DROP TABLE IF EXISTS audit_logs;
+DROP TABLE IF EXISTS idempotency_keys;
+DROP TABLE IF EXISTS deliveries;
+DROP TABLE IF EXISTS preorder_settings;
+DROP TABLE IF EXISTS preorder_payments;
+DROP TABLE IF EXISTS preorder_items;
+DROP TABLE IF EXISTS preorders;
+DROP TABLE IF EXISTS transaction_items;
+DROP TABLE IF EXISTS transactions;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS categories;
+DROP TABLE IF EXISTS refresh_tokens;
+DROP TABLE IF EXISTS users;
+DROP SEQUENCE IF EXISTS delivery_seq;
+DROP SEQUENCE IF EXISTS preorder_seq;
+DROP SEQUENCE IF EXISTS receipt_seq;
+DROP FUNCTION IF EXISTS next_doc_no(text, regclass);
+DROP FUNCTION IF EXISTS bump_version();
+DROP FUNCTION IF EXISTS set_updated_at();

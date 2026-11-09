@@ -1,0 +1,311 @@
+@import "tailwindcss";
+
+@theme {
+  /* HP kecil (≥360px). Di bawahnya (mis. 320px) baris filter dibuat satu kolom. */
+  --breakpoint-xs: 22.5rem;
+
+  --font-sans: "Figtree Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --color-ink: #12263a;
+  --color-ink-soft: #4a5b6c;
+  --color-paper: #fcfcfa;
+  --color-wall: #e8edf1;
+  --color-line: #cbd5dd;
+  --color-kunyit: #f2b705;
+  --color-kunyit-deep: #d9a300;
+  --color-hijau: #1e8a5a;
+  --color-merah: #b3261e;
+}
+
+/* Kasir dua kolom (produk | keranjang) butuh layar lebar DAN cukup tinggi. HP landscape (mis. 844×390)
+   memakai tata letak HP: keranjang di bawah daftar produk dengan bar Bayar di bawah layar. */
+@custom-variant kasir-lebar (@media (width >= 48rem) and (height >= 30rem));
+
+@layer base {
+  body {
+    background: var(--color-wall);
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+}
+
+/* Lembar struk: tepi bawah bergerigi seperti kertas thermal yang baru disobek. */
+.struk {
+  --gigi: 18px;
+  mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / var(--gigi) 100%;
+}
+
+/* Struk dan surat jalan: dipakai untuk pratinjau di layar dan untuk dicetak di printer kasir,
+   kertas thermal 57 mm (gulungan 57 × 30 mm). Tidak ada pilihan lebar lain. */
+.receipt {
+  width: 57mm;
+  padding: 3mm;
+  background: #fff;
+  color: #000;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.35;
+}
+.receipt-center {
+  text-align: center;
+}
+/* 320 titik = 40 mm di printer thermal 203 dpi (8 titik per mm). */
+.receipt-logo {
+  display: block;
+  width: 40mm;
+  height: auto;
+  margin: 0 auto 1mm;
+}
+.receipt-strong {
+  font-weight: 600;
+}
+.receipt-rule {
+  margin: 6px 0;
+  border-top: 1px dashed #000;
+}
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.receipt-item {
+  margin-bottom: 4px;
+}
+
+/* Nota pre-order untuk pelanggan: printer dot matrix Epson LQ-310, kertas continuous form 9½ × 5½ inci
+   (241,3 × 139,7 mm, ukuran halamannya diatur PreorderNota lewat @page). Kiri-kanan dikosongkan 17 mm
+   (lubang traktor ½ inci ditambah jarak) supaya tidak ada yang tercetak di bagian yang disobek.
+   Tingginya sedikit di bawah 139,7 mm supaya pembulatan tidak membuat halaman kosong kedua.
+   Pesanan dengan barang sangat banyak boleh memanjang ke lembar berikutnya (kertasnya bersambung). */
+.nota {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 241.3mm;
+  min-height: 139.2mm;
+  padding: 6mm 17mm 5mm;
+  background: #fff;
+  color: #000;
+  font-family: var(--font-sans);
+  font-size: 10pt;
+  line-height: 1.25;
+}
+.nota-head {
+  display: flex;
+  gap: 8mm;
+}
+.nota-shop {
+  flex: none;
+  width: 60mm;
+  text-align: center;
+  font-size: 8.5pt;
+  font-weight: 600;
+}
+.nota-title {
+  font-size: 14pt;
+  font-weight: 800;
+  letter-spacing: 0.4mm;
+}
+.nota-phone {
+  font-size: 9.5pt;
+  font-weight: 700;
+}
+.nota-logo {
+  display: block;
+  width: 17mm;
+  height: auto;
+  margin: 0.5mm auto 1mm;
+}
+.nota-fields {
+  flex: 1;
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  align-content: start;
+  column-gap: 2mm;
+  row-gap: 0.9mm;
+}
+.nota-fields dt {
+  font-weight: 600;
+}
+.nota-fields dt::after {
+  content: ' :';
+}
+.nota-fields dd {
+  min-height: 4.8mm;
+  border-bottom: 0.3mm dotted #000;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.nota-table {
+  width: 100%;
+  margin-top: 3mm;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.nota-table th,
+.nota-table td {
+  padding: 0 2mm;
+  border: 0.3mm solid #000;
+}
+.nota-table th {
+  height: 6.5mm;
+  font-size: 9pt;
+  letter-spacing: 0.3mm;
+  text-align: center;
+}
+.nota-table td {
+  height: var(--nota-row, 6.8mm);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.nota-num {
+  font-family: var(--font-mono);
+  text-align: right;
+}
+.nota-table td.nota-qty {
+  text-align: center;
+}
+/* Bawah tabel: tanda tangan di kiri, rincian bayar di bawah kolom HARGA + JUMLAH (70 mm). */
+.nota-foot {
+  display: grid;
+  grid-template-columns: 1fr 70mm;
+  margin-top: 0.5mm;
+  break-inside: avoid;
+}
+.nota-signs {
+  display: flex;
+  align-self: end;
+  gap: 6mm;
+}
+.nota-sign {
+  width: 40mm;
+  text-align: center;
+  font-size: 9pt;
+}
+.nota-sign-name {
+  height: 5mm;
+  margin-top: 11mm;
+  padding-top: 0.5mm;
+  border-top: 0.3mm dotted #000;
+}
+.nota-totals {
+  min-width: 0;
+}
+/* Rincian bayar: label di bawah kolom HARGA (32 mm), angka rata kanan di bawah kolom JUMLAH. */
+.nota-totals > div {
+  display: grid;
+  grid-template-columns: 32mm 1fr;
+  align-items: baseline;
+  padding: 0.35mm 0;
+}
+.nota-totals dt {
+  position: relative;
+  padding-left: 2mm;
+  font-size: 9.5pt;
+  font-weight: 600;
+}
+.nota-totals dt::after {
+  content: ':';
+  position: absolute;
+  right: 1.5mm;
+}
+.nota-totals dd {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 2mm;
+  min-width: 0;
+  padding-right: 2mm;
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+.nota-fee-note {
+  margin-right: auto;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  font-size: 9pt;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+/* Garis jumlah di atas Total Akhir, seperti di nota tulisan tangan. */
+.nota-totals > .nota-final {
+  margin-top: 0.6mm;
+}
+.nota-final dd {
+  padding-top: 0.6mm;
+  border-top: 0.3mm solid #000;
+  font-size: 11pt;
+  font-weight: 700;
+}
+.nota-final dt {
+  font-size: 10.5pt;
+  font-weight: 800;
+}
+
+/* Surat jalan (DeliverySlip): kertas, blok toko, tabel berharga, tanda tangan, dan rincian bayar sama dengan nota
+   pre-order (opsi C pilihan E). Kanan atas judul SURAT JALAN lalu data pengiriman dua pasang per baris, supaya
+   kepalanya tidak lebih tinggi dari blok toko. */
+.nota-doc {
+  flex: 1;
+  min-width: 0;
+}
+.nota-doc-title {
+  margin-bottom: 1.5mm;
+  font-size: 14pt;
+  font-weight: 800;
+  letter-spacing: 0.6mm;
+}
+.nota-fields-2 {
+  grid-template-columns: max-content 1fr max-content 1fr;
+}
+.nota-fields .nota-wide {
+  grid-column: span 3;
+}
+.nota-note {
+  display: -webkit-box;
+  margin-top: 1.2mm;
+  overflow: hidden;
+  font-size: 9pt;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+#print-area {
+  display: none;
+}
+
+@media print {
+  #root {
+    display: none !important;
+  }
+  #print-area {
+    display: block;
+  }
+  /* Titik logo struk dicetak apa adanya; kalau dihaluskan, arsiran merahnya jadi abu-abu kabur. */
+  .receipt-logo {
+    image-rendering: pixelated;
+  }
+  body {
+    background: #fff;
+  }
+  @page {
+    margin: 0;
+  }
+}

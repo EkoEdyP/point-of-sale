@@ -8,9 +8,6 @@
 *.so
 *.dylib
 
-# Code Editor
-*.idea
-
 # Test binary, built with `go test -c`
 *.test
 
@@ -22,3 +19,22 @@
 
 # Go workspace file
 go.work
+
+# IDE
+.idea
+.vscode
+
+# LOGGING
+*.log
+
+# MY NOTE
+.myNote
+
+# TEMPORARY
+tmp
+
+# ENV
+env.sh
+
+# macOS
+.DS_Store
