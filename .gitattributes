@@ -1,0 +1,15 @@
+# Akhir baris di repo dan di setiap salinan selalu LF, juga saat di-clone di Windows dengan core.autocrlf=true:
+# env.sh disalin dari env.example.sh lalu dibaca bash, yang gagal pada baris ber-CRLF, dan gofmt -l menandai semua
+# file Go ber-CRLF.
+* text=auto eol=lf
+
+# cmd.exe bisa gagal menemukan label goto di skrip ber-LF, jadi skrip Windows tetap CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Gambar dan font selalu biner: tidak pernah dikonversi akhir barisnya dan tidak ditampilkan sebagai teks di diff.
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff binary
+*.woff2 binary

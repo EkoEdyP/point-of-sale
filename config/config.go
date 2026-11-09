@@ -1,7 +1,10 @@
 package config
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -31,6 +34,7 @@ type (
 		ApiHost string
 		ApiPort string
 		// Additional configurations⤵️
+		WebDir string // folder hasil build tampilan web yang ikut disajikan (APP_WEB_DIR, bawaan web/dist)
 	}
 
 	FileLogConfig struct {
@@ -56,9 +60,20 @@ type Config struct {
 	JWTConfig
 }
 
+// envFile: file pengaturan yang di-source di Mac/Linux (baris export NAMA=nilai). Server juga membacanya sendiri dari
+// folder kerja, supaya bisa dijalankan tanpa shell, misalnya lewat start.bat di Windows. Variabel lingkungan yang
+// sudah diset tetap menang, jadi nilai dari Makefile atau baris perintah (APP_DB_NAME=pos_check ...) tidak tertimpa.
+const envFile = "env.sh"
+
+// defaultWebDir: hasil npm run build di web/, relatif terhadap folder kerja.
+const defaultWebDir = "web/dist"
+
 func (c *Config) LoadConfig() error {
 	v := viper.New()
 	v.AutomaticEnv()
+	if err := readEnvFile(v, envFile); err != nil {
+		return err
+	}
 
 	c.DbConfig = DbConfig{
 		Driver:   v.GetString("APP_DB_DRIVER"),
@@ -74,6 +89,7 @@ func (c *Config) LoadConfig() error {
 	c.ApiConfig = ApiConfig{
 		ApiHost: v.GetString("APP_API_HOST"),
 		ApiPort: v.GetString("APP_API_PORT"),
+		WebDir:  strings.TrimSpace(v.GetString("APP_WEB_DIR")),
 	}
 
 	c.FileLogConfig = FileLogConfig{
@@ -123,6 +139,9 @@ func (c *Config) LoadConfig() error {
 	}
 
 	// Opsional: kosong berarti nilai bawaan.
+	if c.ApiConfig.WebDir == "" {
+		c.ApiConfig.WebDir = defaultWebDir
+	}
 	var err error
 	if c.DbConfig.MaxConns, err = optionalInt(v, "APP_DB_MAX_CONNS", 20, 1, 100); err != nil {
 		return err
@@ -139,6 +158,19 @@ func (c *Config) LoadConfig() error {
 	}
 	if c.FileLogConfig.LogLevel, err = logrus.ParseLevel(level); err != nil {
 		return fmt.Errorf("APP_LOG_LEVEL harus salah satu dari: debug, info, warn, error")
+	}
+	return nil
+}
+
+// readEnvFile memakai isi file env name sebagai nilai di bawah variabel lingkungan. File yang tidak ada dilewati.
+func readEnvFile(v *viper.Viper, name string) error {
+	if _, err := os.Stat(name); errors.Is(err, fs.ErrNotExist) {
+		return nil
+	}
+	v.SetConfigFile(name)
+	v.SetConfigType("env")
+	if err := v.ReadInConfig(); err != nil {
+		return fmt.Errorf("baca %s: %w", name, err)
 	}
 	return nil
 }

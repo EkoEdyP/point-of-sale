@@ -36,5 +36,8 @@ tmp
 # ENV
 env.sh
 
+# Backup database (pg_dump): berisi data pelanggan dan hash password, repo ini publik
+*.dump
+
 # macOS
 .DS_Store

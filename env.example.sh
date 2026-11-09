@@ -1,6 +1,8 @@
 #!/bin/bash
 # Jangan menulis komentar di baris yang sama dengan nilai (export X=nilai # komentar).
 # Makefile membaca file ini dengan "include", dan spasi sebelum "#" ikut menjadi bagian nilai.
+# Server juga membaca env.sh sendiri dari folder tempat ia dijalankan (misalnya lewat start.bat di Windows), jadi
+# tidak perlu "source env.sh" dulu. Variabel yang sudah diset di lingkungan tetap dipakai lebih dulu.
 
 # Database Configuration
 export APP_DB_DRIVER=postgres
@@ -14,7 +16,7 @@ export APP_SSL_MODE=disable
 export APP_TIME_ZONE=Asia/Jakarta
 
 # Api Configuration
-# Ganti ke 0.0.0.0 supaya bisa diakses dari LAN toko
+# Ganti ke 0.0.0.0 supaya bisa diakses dari LAN toko (HP dan tablet membuka http://<IP PC>:8080)
 export APP_API_HOST=localhost
 export APP_API_PORT=8080
 
@@ -37,3 +39,6 @@ export APP_REFRESH_EXPIRES_IN_DAYS=7
 # export APP_DB_LOCK_TIMEOUT=10s
 # Level log: debug (semua request, termasuk GET), info, warn, error
 # export APP_LOG_LEVEL=info
+# Folder hasil "npm run build" yang ikut disajikan server (bawaan web/dist). Selama folder itu belum ada, buka
+# tampilan web lewat "npm run dev".
+# export APP_WEB_DIR=web/dist

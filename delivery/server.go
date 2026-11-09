@@ -3,6 +3,7 @@ package delivery
 import (
 	"context"
 	"fmt"
+	"net"
 	"os"
 	"os/signal"
 	"syscall"
@@ -39,6 +40,8 @@ type (
 		Host     string
 		Log      *logrus.Logger
 		logFile  *os.File
+		// OpenBrowser: buka aplikasi di browser setelah server siap (pos.exe --buka dari start.bat).
+		OpenBrowser bool
 	}
 )
 
@@ -47,6 +50,7 @@ type (
 func (s *Server) Run() {
 	s.initMiddlewares()
 	s.initControllers()
+	s.initWeb()
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -60,10 +64,27 @@ func (s *Server) Run() {
 		"lock_timeout":      s.Cfg.DbConfig.LockTimeout.String(),
 	}).Info("server mulai")
 	go s.cleanup(ctx)
-	err := s.Engine.Listen(s.Host, fiber.ListenConfig{GracefulContext: ctx, ShutdownTimeout: shutdownTimeout})
-	if err != nil {
+	listen := fiber.ListenConfig{GracefulContext: ctx, ShutdownTimeout: shutdownTimeout}
+	url := appURL(s.Cfg.ApiHost, s.Cfg.ApiPort)
+	if s.OpenBrowser {
+		// Di jendela start.bat cukup alamat aplikasinya, tanpa banner Fiber.
+		listen.DisableStartupMessage = true
+		listen.ListenerAddrFunc = func(net.Addr) {
+			printAddresses(url, lanURLs(s.Cfg.ApiHost, s.Cfg.ApiPort))
+			s.openBrowser(url)
+		}
+	}
+	err := s.Engine.Listen(s.Host, listen)
+	switch {
+	case err != nil && s.OpenBrowser && posAnswers(url):
+		// start.bat dibuka lagi selagi server masih berjalan, misalnya setelah browsernya ditutup.
+		s.Log.WithField("addr", s.Host).Info("server sudah berjalan di proses lain, browser dibuka")
+		fmt.Println("POS sudah berjalan di jendela lain.")
+		s.openBrowser(url)
+		err = nil
+	case err != nil:
 		s.Log.WithError(err).Error("server berhenti karena error")
-	} else {
+	default:
 		s.Log.Info("server berhenti")
 	}
 	if cerr := s.InfraM.Conn().Close(); cerr != nil {

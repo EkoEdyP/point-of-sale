@@ -1,7 +1,16 @@
 package main
 
-import "github.com/EkoEdyP/point-of-sale/delivery"
+import (
+	"flag"
+
+	"github.com/EkoEdyP/point-of-sale/delivery"
+)
 
 func main() {
-	delivery.NewServer().Run()
+	openBrowser := flag.Bool("buka", false, "buka aplikasi di browser setelah server siap (dipakai start.bat)")
+	flag.Parse()
+
+	server := delivery.NewServer()
+	server.OpenBrowser = *openBrowser
+	server.Run()
 }
