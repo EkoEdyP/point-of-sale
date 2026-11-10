@@ -89,8 +89,9 @@
 }
 
 /* Nota pre-order untuk pelanggan: printer dot matrix Epson LQ-310, kertas continuous form 9½ × 5½ inci
-   (241,3 × 139,7 mm, ukuran halamannya diatur PreorderNota lewat @page). Kiri-kanan dikosongkan 17 mm
-   (lubang traktor ½ inci ditambah jarak) supaya tidak ada yang tercetak di bagian yang disobek.
+   (241,3 × 139,7 mm, ukuran halamannya diatur PreorderNota lewat @page). Kiri-kanan dikosongkan 20 mm:
+   LQ-310 hanya bisa mencetak selebar 203,2 mm (8 inci), jadi di kertas selebar ini sekitar 19 mm dari tiap tepi
+   tidak tercetak. Lubang traktor ½ inci yang disobek ada di dalam tepi itu.
    Tingginya sedikit di bawah 139,7 mm supaya pembulatan tidak membuat halaman kosong kedua.
    Pesanan dengan barang sangat banyak boleh memanjang ke lembar berikutnya (kertasnya bersambung). */
 .nota {
@@ -99,7 +100,7 @@
   flex-direction: column;
   width: 241.3mm;
   min-height: 139.2mm;
-  padding: 6mm 17mm 5mm;
+  padding: 6mm 20mm 5mm;
   background: #fff;
   color: #000;
   font-family: var(--font-sans);
@@ -182,10 +183,12 @@
 .nota-table td.nota-qty {
   text-align: center;
 }
-/* Bawah tabel: tanda tangan di kiri, rincian bayar di bawah kolom HARGA + JUMLAH (70 mm). */
+/* Bawah tabel: tanda tangan di kiri, rincian bayar di bawah kolom HARGA + JUMLAH (70 mm). Tiga tanda tangan surat
+   jalan (3 × 40 mm + jarak) sedikit lebih lebar dari kolom kiri, jadi kotak tanda tangan yang menyempit, bukan
+   rincian bayar yang terdorong keluar batas cetak. */
 .nota-foot {
   display: grid;
-  grid-template-columns: 1fr 70mm;
+  grid-template-columns: minmax(0, 1fr) 70mm;
   margin-top: 0.5mm;
   break-inside: avoid;
 }
@@ -195,7 +198,8 @@
   gap: 6mm;
 }
 .nota-sign {
-  width: 40mm;
+  flex: 0 1 40mm;
+  min-width: 0;
   text-align: center;
   font-size: 9pt;
 }
