@@ -124,10 +124,6 @@ export function PreorderNotaDialog({ preorder, onClose }: { preorder: Preorder; 
     <>
       <Modal title={`Nota ${preorder.order_no}`} onClose={onClose} size="wide">
         <ScaledNota preorder={preorder} />
-        <p className="mt-3 text-sm text-ink-soft">
-          Untuk printer Epson LQ-310 dengan kertas continuous form 9½ × 5½ inci. Di jendela cetak, pilih printer itu
-          dan ukuran kertas 9½ × 5½ inci.
-        </p>
         <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button
             type="button"
