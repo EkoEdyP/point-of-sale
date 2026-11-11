@@ -41,3 +41,6 @@ env.sh
 
 # macOS
 .DS_Store
+
+# graphify: graph kode yang dibangun dari repo ini, bisa dibuat ulang kapan saja
+graphify-out/
